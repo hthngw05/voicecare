@@ -24,7 +24,6 @@ WhatsApp-based AI voice companion for seniors living alone.
 ### Prerequisites
 
 - Docker Desktop installed
-- Python 3.9+ (for Whisper service)
 - Google AI Studio API key (FREE)
 
 ### Step 1: Get API Key
@@ -34,27 +33,7 @@ WhatsApp-based AI voice companion for seniors living alone.
 3. Click "Get API key" → "Create API key"
 4. Copy the key
 
-### Step 2: Start Whisper Service (Run on Windows)
-
-Open a **separate PowerShell window**:
-
-```bash
-cd C:\Users\yourname\seniorcare
-
-# Install Whisper dependencies
-pip install -r requirements_whisper.txt
-
-# Start Whisper service
-python whisper_service.py
-```
-
-Wait for: `"Whisper model loaded!"`
-
-The service runs at: `http://localhost:8001`
-
-**Note:** First time will download Whisper model (~260MB). Subsequent runs load from cache.
-
-### Step 3: Add API Key to docker-compose.yml
+### Step 2: Add API Key to docker-compose.yml
 
 Open `docker-compose.yml` and add to `backend.environment`:
 
@@ -62,13 +41,13 @@ Open `docker-compose.yml` and add to `backend.environment`:
 - GOOGLE_API_KEY=AIzaSy...your_api_key_here
 ```
 
-### Step 4: Start Docker Services
+### Step 3: Start Docker Services
 
 ```bash
 docker compose up -d
 ```
 
-### Step 5: Test
+### Step 4: Test
 
 Send a WhatsApp message to your SeniorCare number:
 
@@ -76,32 +55,7 @@ Send a WhatsApp message to your SeniorCare number:
 - "taken" → Bot confirms medication
 - "help me" → Bot alerts caregiver
 
-## Project Structure
-seniorcare/
-
-├── backend/
-
-│ ├── app/
-
-│ │ └── main.py
-
-│ ├── requirements.txt
-
-│ └── Dockerfile
-
-├── whisper_service.py
-
-├── requirements_whisper.txt
-
-├── docker-compose.yml
-
-└── README.md
 ## Troubleshooting
-
-**Whisper not working?**
-```bash
-python whisper_service.py
-```
 
 **Backend not responding?**
 ```bash
