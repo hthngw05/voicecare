@@ -78,14 +78,23 @@ Send a WhatsApp message to your SeniorCare number:
 
 ## Project Structure
 seniorcare/
+
 ├── backend/
+
 │ ├── app/
+
 │ │ └── main.py
+
 │ ├── requirements.txt
+
 │ └── Dockerfile
+
 ├── whisper_service.py
+
 ├── requirements_whisper.txt
+
 ├── docker-compose.yml
+
 └── README.md
 ## Troubleshooting
 
