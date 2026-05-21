@@ -4,7 +4,7 @@ import whisper
 import base64
 import os
 import uvicorn
-from pathlib import Path
+
 
 app = FastAPI(title="Whisper Speech-to-Text Service")
 

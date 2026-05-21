@@ -1,6 +1,16 @@
 version: '3.8'
 
 services:
+  whisper:
+    build:
+      context: .
+      dockerfile: Dockerfile.whisper
+    container_name: seniorcare-whisper
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+    networks:
+      - seniorcare-network
   # PostgreSQL Database
   postgres:
     image: postgres:15-alpine

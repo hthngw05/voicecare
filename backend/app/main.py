@@ -20,7 +20,7 @@ app = FastAPI(title="SeniorCare WhatsApp Chatbot")
 # Configuration
 EVOLUTION_URL = "http://evolution:8080"
 EVOLUTION_API_KEY = "supersecretkey123"
-WHISPER_URL = "http://host.docker.internal:8001"  # Whisper service on Windows host
+WHISPER_URL = "http://whisper:8001" 
 INSTANCE_NAME = "seniorcare"
 
 load_dotenv()
