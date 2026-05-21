@@ -77,3 +77,29 @@ Send a WhatsApp message to your SeniorCare number:
 - "help me" → Bot alerts caregiver
 
 ## Project Structure
+seniorcare/
+├── backend/
+│ ├── app/
+│ │ └── main.py
+│ ├── requirements.txt
+│ └── Dockerfile
+├── whisper_service.py
+├── requirements_whisper.txt
+├── docker-compose.yml
+└── README.md
+## Troubleshooting
+
+**Whisper not working?**
+```bash
+python whisper_service.py
+```
+
+**Backend not responding?**
+```bash
+docker compose restart backend
+```
+
+**Check logs:**
+```bash
+docker compose logs backend
+```
