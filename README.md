@@ -39,7 +39,7 @@ WhatsApp-based AI voice companion for seniors living alone.
 Open a **separate PowerShell window**:
 
 ```bash
-cd C:\Users\hthth\seniorcare
+cd C:\Users\yourname\seniorcare
 
 # Install Whisper dependencies
 pip install -r requirements_whisper.txt
