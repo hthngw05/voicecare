@@ -1,0 +1,13 @@
+# Python virtual environment
+.venv/
+venv/
+
+# Bytecode / caches
+__pycache__/
+*.py[cod]
+
+# Local environment / secrets (use .env.example as the template)
+.env
+
+# Scratch
+_label_b64.txt
