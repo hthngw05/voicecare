@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  whisper:
+    build:
+      context: .
+      dockerfile: Dockerfile.whisper
+    container_name: carevoice-whisper
+    ports:
+      - "8001:8001"
+    restart: unless-stopped
+    environment:
+      # Whisper model: tiny | base | small | medium | large-v3 | turbo.
+      # turbo (large-v3-turbo) = strong multilingual language detection, fast on
+      # CPU, ~1.6GB. Better than medium at telling English from Malay/Tamil/etc.
+      - WHISPER_MODEL=turbo
+    volumes:
+      # Persist the downloaded Whisper model so it isn't re-downloaded on restart.
+      - whisper-models:/root/.cache/whisper
+    networks:
+      - carevoice-network
+  # PostgreSQL for Evolution API's OWN internal state only.
+  # NOTE: no host port mapping — your native PostgreSQL 18 already owns host
+  # port 5432 (that's the shared CareVoice database). Evolution reaches this
+  # container internally over the docker network at postgres:5432.
+  postgres:
+    image: postgres:15-alpine
+    container_name: evolution-postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=evolution
+      - POSTGRES_PASSWORD=evolution123
+      - POSTGRES_DB=evolution_db
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      # Check the actual evolution_db so the status is meaningful (and quiet).
+      test: ["CMD-SHELL", "pg_isready -U evolution -d evolution_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - carevoice-network
+
+  evolution:
+    image: evoapicloud/evolution-api:latest
+    container_name: evolution-api
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      - AUTHENTICATION_API_KEY=supersecretkey123
+      - SERVER_URL=http://localhost:8080
+      - DATABASE_ENABLED=true
+      - DATABASE_PROVIDER=postgresql
+      - DATABASE_CONNECTION_URI=postgresql://evolution:evolution123@postgres:5432/evolution_db
+      - CACHE_REDIS_ENABLED=false
+      - TYPEBOT_API=
+      - TYPEBOT_URL=
+      - CHATWOOT_API=
+      - CHATWOOT_URL=
+      - RABBITMQ_ENABLED=false
+      - WEBSOCKET_ENABLED=true
+    volumes:
+      - ./evolution-data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - carevoice-network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: carevoice-backend
+    # Host port 8002 -> container 8000. (Host 8000 is taken by the native
+    # CareVoice caregiver API that the Flutter app talks to.)
+    ports:
+      - "8002:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - EVOLUTION_BASE=http://evolution:8080
+      - EVOLUTION_API_KEY=supersecretkey123
+      - GOOGLE_API_KEY=AIzaSyCQu2wSlU1q4mwBgdtog8tBzp7u0l9NSyM
+      # Shared CareVoice database on the host (native PostgreSQL 18).
+      # host.docker.internal resolves to the host machine from inside the container.
+      - CAREVOICE_DATABASE_URL=postgresql://carevoice:carevoice@host.docker.internal:5432/carevoice
+      # Self-test: set to YOUR WhatsApp number (digits only, e.g. 6591234567) to
+      # test by messaging yourself. Leave blank for normal (reply-to-others) mode.
+      # Two-phone setup: bot/companion runs on 6598643992 (linked via QR in
+      # Evolution), the senior messages from 6597128022 -> normal mode, so blank.
+      - SELF_TEST_NUMBER=
+    extra_hosts:
+      # Required on Linux hosts; harmless on Docker Desktop (Windows/Mac).
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - evolution
+    restart: unless-stopped
+    networks:
+      - carevoice-network
+
+networks:
+  carevoice-network:
+    driver: bridge
+
+volumes:
+  whisper-models:

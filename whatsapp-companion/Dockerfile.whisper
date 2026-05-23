@@ -1,0 +1,18 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# git: needed to pip-install whisper from GitHub.
+# ffmpeg: needed by Whisper to decode WhatsApp's .ogg/opus voice audio.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git ffmpeg \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY requirements_whisper.txt .
+RUN pip install --no-cache-dir -r requirements_whisper.txt
+
+COPY whisper_service.py .
+
+EXPOSE 8001
+
+CMD ["python", "whisper_service.py"]
